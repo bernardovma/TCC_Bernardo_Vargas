@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Jurídico</title>
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px; 
+        }
+
+        .title-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px; 
+        }
+
+        .title {
+            font-size: 32px; 
+            font-weight: bold;
+            font-family: 'Georgia', serif;
+            color: #007bff;
+            text-align: center;
+            margin: 0 20px;
+        }
+
+        .title-container img {
+            width: 60px; 
+            height: 60px;
+            object-fit: cover;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        .decision-section, .chat-section {
+            flex: 1;
+            margin: 0 15px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .decision-section {
+            max-width: 45%;
+            overflow-y: auto;
+            height: 500px;
+        }
+
+        .chat-section {
+            max-width: 55%; 
+        }
+
+        .context-section {
+            flex: 1;
+            margin: 0 15px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 40%; 
+            overflow-y: auto;
+            height: 500px; 
+        }
+
+        #search-bar, #search-by {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #context-box {
+            height: 450px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f4f4f9;
+        }
+
+        #decision-list {
+            list-style-type: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        #decision-list li {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #f4f4f9;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+
+        #decision-list li:hover {
+            background-color: #e9ecef;
+        }
+
+        #decision-text {
+            height: 350px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f4f4f9;
+        }
+
+        #message-input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        #message-input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .chat-box {
+            height: 400px; 
+            overflow-y: auto;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            text-align: right;
+        }
+
+        .bot-message {
+            background-color: #e9ecef;
+            color: #333;
+            text-align: left;
+        }
+
+        .download-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="title-container">
+        <img src="static/pngtree-law-scales-of-justice-illustration-png-image_6529354.png" alt="Logo 1">
+        <div class="title">Chatbot Jurídico</div>
+        <img src="static/png-clipart-computer-icons-desktop-chatbot-icon-blue-angle.png" alt="Logo 2">
+    </div>
+
+    <div class="container">
+        <div class="decision-section">
+            <select id="search-by">
+                <option value="id">Procura por ID</option>
+                <option value="relator">Procura por Relator</option>
+                <option value="process_number">Procura por Número do Processo</option>
+            </select>
+            <input type="text" id="search-bar" placeholder="Digite sua busca." onkeydown="if(event.key === 'Enter'){searchDecision();}">
+            <ul id="decision-list" style="display:none;"></ul>
+
+            <div id="decision-text">O texto da decisão aparecerá aqui...</div>
+
+            <a href="#" id="download-link" class="download-link" style="display:none;" target="_blank">Baixar Decisão</a>
+        </div>
+
+        <div class="chat-section">
+            <div class="chat-box" id="chat-box">
+                <div class="message bot-message">Olá! Como posso ajudar?</div>
+            </div>
+
+            <input type="text" id="message-input" placeholder="Digite sua mensagem aqui." onkeydown="if(event.key === 'Enter'){sendMessage();}">
+        </div>
+
+        <div class="context-section">
+            <h3>Contexto Jurídico</h3>
+            <div id="context-box">
+                As leis utilizadas como contexto aparecerão aqui...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let decisions = [];
+
+        async function searchDecision() {
+            const query = document.getElementById('search-bar').value.trim();
+            const searchBy = document.getElementById('search-by').value;
+
+            console.log(`Searching for: ${query} by ${searchBy}`);
+
+            if (query) {
+                const response = await fetch("/search", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ query: query, search_by: searchBy })
+                });
+
+                const data = await response.json();
+                console.log("Response from search:", data);
+
+                const decisionTextElement = document.getElementById('decision-text');
+                const downloadLink = document.getElementById('download-link');
+
+                if (data.decisions && data.decisions.length > 0) {
+                    decisions = data.decisions; 
+                    console.log("Decisions:", decisions); 
+                    displayDecisionList();
+                    decisionTextElement.textContent = "Select a decision from the list above.";
+                    downloadLink.style.display = 'block';
+                } else {
+                    decisionTextElement.textContent = "No decision found.";
+                    downloadLink.style.display = 'none';
+                }
+            }
+        }
+
+        function displayDecisionList() {
+            const decisionList = document.getElementById("decision-list");
+            decisionList.innerHTML = ''; 
+            decisionList.style.display = 'block'; 
+
+            decisions.forEach((decision, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `Decisão ${index + 1}: ${decision.Relator} - ${decision.Process_Number}`;
+                listItem.onclick = () => displayDecisionText(index);
+                decisionList.appendChild(listItem);
+            });
+        }
+
+        function displayDecisionText(index) {
+            const decisionTextElement = document.getElementById('decision-text');
+            const downloadLink = document.getElementById('download-link');
+            const decision = decisions[index];
+            const decisionText = `Decisão por ${decision.Relator} - Número do Processo: ${decision.Process_Number}\n\n${decision.text}`;
+
+            decisionTextElement.textContent = decisionText;
+
+            downloadLink.href = `data:text/plain;charset=utf-8,${encodeURIComponent(decisionText)}`;
+            downloadLink.style.display = 'block';
+
+            window.selectedDecisionText = decision.text;  
+        }
+
+        async function updateContext(laws) {
+            const contextBox = document.getElementById("context-box");
+            contextBox.innerHTML = ""; 
+
+            if (laws && laws.length > 0) {
+                const contextList = laws.map(([artigo, lei, ano]) => {
+                    return `<p>Lei: ${lei}/${ano}, Artigo: ${artigo}</p>`;
+                }).join("");
+                contextBox.innerHTML = contextList;
+            } else {
+                contextBox.textContent = "Nenhum contexto disponível.";
+            }
+        } 
+
+        async function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value.trim();
+            const decisionText = window.selectedDecisionText;
+
+            if (message && decisionText) {
+                addMessageToChat("user", message);
+                messageInput.value = "";
+
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ message: message, decision_text: decisionText })
+                });
+
+                const data = await response.json();
+                addMessageToChat("bot", data.response);
+
+                const context = data.context; 
+                updateContext(context);
+            }
+        }
+
+        function addMessageToChat(sender, message) {
+            const chatBox = document.getElementById("chat-box");
+            const messageElement = document.createElement("div");
+            messageElement.classList.add("message");
+            messageElement.classList.add(sender === "user" ? "user-message" : "bot-message");
+            messageElement.textContent = message;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }  
+        </script>
+
+</body>
+</html>
