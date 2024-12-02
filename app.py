@@ -8,7 +8,7 @@ import csv
 
 app = Flask(__name__)
 
-#os.environ["OPENAI_API_KEY"] = 
+os.environ["OPENAI_API_KEY"] = "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"
 
 excel_file = 'updated_data.xlsx'
 df = pd.read_excel(excel_file)
